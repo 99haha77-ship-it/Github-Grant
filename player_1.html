@@ -100,24 +100,6 @@
   .btn:hover { background: var(--active); border-color: var(--accent); }
   .btn.active { background: var(--loop-on); border-color: var(--accent); color: #fff; }
 
-  .file-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 5px 12px;
-    border-radius: 6px;
-    border: 1px solid var(--accent);
-    background: var(--accent-dim);
-    color: var(--accent);
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    letter-spacing: .02em;
-    transition: background .15s;
-  }
-  .file-label:hover { background: rgba(123,158,245,.22); }
-  #file-input { display: none; }
-
   /* ── Main layout ── */
   .main {
     display: flex;
@@ -321,11 +303,6 @@
     </button>
     <button class="btn" id="btn-en" title="切换英文字幕">EN</button>
     <button class="btn" id="btn-zh" title="切换中文字幕">中</button>
-    <label class="file-label" for="file-input">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      加载视频
-    </label>
-    <input type="file" id="file-input" accept="video/*">
   </div>
 </div>
 
@@ -335,12 +312,8 @@
   <!-- Video column -->
   <div class="video-col">
     <div class="video-wrap">
-      <div class="drop-zone" id="drop-zone">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="2" width="20" height="20" rx="3"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
-        <p>点击右上角「加载视频」选择文件</p>
-        <small>或将视频文件拖到这里</small>
-      </div>
-      <video id="video" style="display:none"></video>
+      <div class="drop-zone hidden" id="drop-zone"></div>
+      <video id="video"></video>
     </div>
 
     <!-- Current subtitle display -->
@@ -364,7 +337,7 @@
 
   <!-- Subtitle list -->
   <div class="sub-col">
-    <div class="sub-col-header">台词列表 · 46句</div>
+    <div class="sub-col-header">台词列表 · 71句</div>
     <div class="sub-list" id="sub-list"></div>
   </div>
 
@@ -468,7 +441,6 @@ const btnSpeed    = document.getElementById('btn-speed');
 const progressWrap= document.getElementById('progress-wrap');
 const progressFill= document.getElementById('progress-fill');
 const timeLabel   = document.getElementById('time-label');
-const fileInput   = document.getElementById('file-input');
 
 // Build subtitle list
 subtitles.forEach((s, i) => {
@@ -606,29 +578,9 @@ progressWrap.addEventListener('click', e => {
   video.currentTime = ratio * video.duration;
 });
 
-// File input
-fileInput.addEventListener('change', e => {
-  const file = e.target.files[0];
-  if (!file) return;
-  loadVideo(file);
-});
-
-function loadVideo(file) {
-  const url = URL.createObjectURL(file);
-  video.src = url;
-  video.style.display = 'block';
-  dropZone.classList.add('hidden');
-  video.play();
-}
-
-// Drag & drop
-const videoCol = document.querySelector('.video-col');
-videoCol.addEventListener('dragover', e => { e.preventDefault(); });
-videoCol.addEventListener('drop', e => {
-  e.preventDefault();
-  const file = e.dataTransfer.files[0];
-  if (file && file.type.startsWith('video/')) loadVideo(file);
-});
+// Auto-load video from GitHub Releases
+const VIDEO_URL = 'https://github.com/99haha77-ship-it/Github-Grant/releases/download/v1/default.mp4';
+video.src = VIDEO_URL;
 
 // Keyboard shortcuts
 document.addEventListener('keydown', e => {

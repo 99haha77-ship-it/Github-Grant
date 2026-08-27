@@ -578,9 +578,20 @@ progressWrap.addEventListener('click', e => {
   video.currentTime = ratio * video.duration;
 });
 
-// Auto-load video from GitHub Releases
-const VIDEO_URL = 'https://archive.org/download/20260825_20260825_0729/%E5%BD%BC%E5%BE%97%E5%85%94%E6%A0%91%E8%8A%B1.mp4';
-video.src = VIDEO_URL;
+// Auto-load video via archive.org metadata API (gets direct CDN URL, avoids redirect issues on mobile)
+const ITEM_ID = '20260825_20260825_0729';
+const FILENAME = '彼得兔树花.mp4';
+
+fetch('https://archive.org/metadata/' + ITEM_ID)
+  .then(r => r.json())
+  .then(data => {
+    const server = data.server;
+    const dir = data.dir;
+    video.src = 'https://' + server + dir + '/' + encodeURIComponent(FILENAME);
+  })
+  .catch(() => {
+    video.src = 'https://archive.org/download/' + ITEM_ID + '/' + encodeURIComponent(FILENAME);
+  });
 
 // Keyboard shortcuts
 document.addEventListener('keydown', e => {

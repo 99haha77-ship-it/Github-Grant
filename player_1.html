@@ -1,24 +1,700 @@
-Last login: Mon Aug 31 18:37:18 on ttys000
-raytan@RaydeMacBook-Air ~ % cat ~/Downloads/player_1.html | pbcopy
-raytan@RaydeMacBook-Air ~ % 
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>彼得兔 树花</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --bg:        #0c0e1a;
+    --surface:   #13172c;
+    --elevated:  #1b2040;
+    --active:    #1e2d58;
+    --accent:    #7b9ef5;
+    --accent-dim: rgba(123,158,245,0.13);
+    --text:      #dce3f7;
+    --text-muted:#6b7a9e;
+    --border:    #242d50;
+    --loop-on:   #3d5fd4;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg:        #f0f2fa;
+      --surface:   #ffffff;
+      --elevated:  #e6eaf8;
+      --active:    #dce5ff;
+      --accent:    #4166e8;
+      --accent-dim: rgba(65,102,232,0.1);
+      --text:      #111827;
+      --text-muted:#6b7a9e;
+      --border:    #c8d0ea;
+      --loop-on:   #3555d0;
+    }
+  }
+  :root[data-theme="light"] {
+    --bg:        #f0f2fa;
+    --surface:   #ffffff;
+    --elevated:  #e6eaf8;
+    --active:    #dce5ff;
+    --accent:    #4166e8;
+    --accent-dim: rgba(65,102,232,0.1);
+    --text:      #111827;
+    --text-muted:#6b7a9e;
+    --border:    #c8d0ea;
+    --loop-on:   #3555d0;
+  }
 
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
 
+  /* ── Top bar ── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 18px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    gap: 12px;
+  }
+  .topbar-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: .02em;
+    white-space: nowrap;
+  }
+  .topbar-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--elevated);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--active); border-color: var(--accent); }
+  .btn.active { background: var(--loop-on); border-color: var(--accent); color: #fff; }
 
+  /* ── Main layout ── */
+  .main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
 
+  /* ── Video column ── */
+  .video-col {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 60%;
+    min-width: 0;
+    background: #000;
+    position: relative;
+  }
+  .video-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+    min-height: 0;
+  }
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
 
+  /* current subtitle bar */
+  .sub-display {
+    flex-shrink: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 14px 20px;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+  }
+  .sub-en {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--text);
+  }
+  .sub-zh {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .sub-empty {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-style: italic;
+  }
 
+  /* video controls */
+  .vid-controls {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+  }
+  .vid-controls button {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    transition: color .12s;
+  }
+  .vid-controls button:hover { color: var(--text); }
+  .progress-wrap {
+    flex: 1;
+    height: 4px;
+    background: var(--elevated);
+    border-radius: 2px;
+    cursor: pointer;
+    position: relative;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    width: 0%;
+    transition: width .1s linear;
+  }
+  .time-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
 
+  /* ── Subtitle list column ── */
+  .sub-col {
+    width: 380px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .sub-col-header {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+  .sub-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 6px 0;
+    scroll-behavior: smooth;
+  }
+  .sub-list::-webkit-scrollbar { width: 4px; }
+  .sub-list::-webkit-scrollbar-track { background: transparent; }
+  .sub-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
+  .sub-item {
+    padding: 10px 16px;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: background .1s, border-color .12s;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .sub-item:hover { background: var(--elevated); }
+  .sub-item.active {
+    background: var(--active);
+    border-left-color: var(--accent);
+  }
+  .sub-item-time {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: .04em;
+  }
+  .sub-item-en {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--text);
+  }
+  .sub-item.active .sub-item-en { color: var(--text); }
+  .sub-item-zh {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+  .sub-item.active .sub-item-zh { color: var(--accent); }
 
+  /* ── Responsive ── */
+  @media (max-width: 700px) {
+    .main { flex-direction: column; }
+    .sub-col { width: 100%; height: 40vh; border-left: none; border-top: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
 
+<!-- Top bar -->
+<div class="topbar">
+  <span class="topbar-title">🐰 彼得兔 · 树花</span>
+  <div class="topbar-controls">
+    <button class="btn" id="btn-loop" title="单句循环">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
+      单句循环
+    </button>
+    <button class="btn" id="btn-en" title="切换英文字幕">EN</button>
+    <button class="btn" id="btn-zh" title="切换中文字幕">中</button>
+  </div>
+</div>
 
+<!-- Main area -->
+<div class="main">
 
+  <!-- Video column -->
+  <div class="video-col">
+    <div class="video-wrap">
+      <video id="video" playsinline></video>
+    </div>
 
+    <!-- Current subtitle display -->
+    <div class="sub-display" id="sub-display">
+      <span class="sub-empty">字幕将在此处显示</span>
+    </div>
 
+    <!-- Video controls -->
+    <div class="vid-controls">
+      <button id="btn-play" title="播放/暂停">
+        <svg id="icon-play" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        <svg id="icon-pause" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+      </button>
+      <div class="progress-wrap" id="progress-wrap">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      <span class="time-label" id="time-label">0:00 / 0:00</span>
+      <button id="btn-speed" title="播放速度" style="font-size:12px;padding:4px 8px;font-family:inherit;font-weight:500;border:1px solid var(--border);border-radius:4px;background:var(--elevated);color:var(--text-muted);">1×</button>
+    </div>
+  </div>
 
+  <!-- Subtitle list -->
+  <div class="sub-col">
+    <div class="sub-col-header">台词列表 · 71句</div>
+    <div class="sub-list" id="sub-list"></div>
+  </div>
 
+</div>
 
+<script>
+const subtitles = [
+  { id:1,  start:1.000,   end:3.000,   en:"Blossoms!",                                        zh:"花儿！" },
+  { id:2,  start:7.000,   end:8.968,   en:"Springtime brought lots of new things",             zh:"春天带来了许多新鲜事物，" },
+  { id:3,  start:8.968,   end:10.138,  en:"for Little Field Mouse",                            zh:"给小田鼠" },
+  { id:4,  start:10.138,  end:12.000,  en:"and Little Nut Brown Hare to enjoy.",               zh:"和小棕兔享受。" },
+  { id:5,  start:14.000,  end:15.811,  en:"Warm sunny days,",                                  zh:"温暖晴朗的日子，" },
+  { id:6,  start:15.811,  end:20.000,  en:"a fast flowing stream and a new game.",             zh:"湍急的小溪，还有新游戏。" },
+  { id:7,  start:22.000,  end:23.000,  en:"Got it!",                                           zh:"抓到了！" },
+  { id:8,  start:23.000,  end:24.260,  en:"Even Little Nut Brown",                             zh:"就连小棕" },
+  { id:9,  start:24.260,  end:26.000,  en:"Hare's father was having fun.",                     zh:"兔的爸爸也玩得很开心。" },
+  { id:10, start:26.000,  end:28.000,  en:"Here comes another leaf!",                          zh:"又来一片叶子！" },
+  { id:11, start:30.000,  end:32.000,  en:"It's coming straight to me!",                       zh:"它直接朝我飘来了！" },
+  { id:12, start:35.000,  end:37.000,  en:"Oh, I didn't get it!",                              zh:"哦，我没抓到！" },
+  { id:13, start:37.000,  end:38.846,  en:"Never mind Little Field Mouse,",                    zh:"没关系，小田鼠，" },
+  { id:14, start:38.846,  end:41.000,  en:"I'll send you an extra special one.",               zh:"我再给你送一片特别的。" },
+  { id:15, start:42.000,  end:45.000,  en:"Something pretty, something pretty.",               zh:"要找漂亮的，要找漂亮的。" },
+  { id:16, start:46.000,  end:48.000,  en:"What about that blossom?",                          zh:"那朵花怎么样？" },
+  { id:17, start:48.000,  end:49.212,  en:"Do you think Little",                               zh:"你觉得小" },
+  { id:18, start:49.212,  end:51.000,  en:"Field Mouse would like that?",                      zh:"田鼠会喜欢吗？" },
+  { id:19, start:51.000,  end:52.000,  en:"Perfect!",                                          zh:"完美！" },
+  { id:20, start:52.000,  end:53.500,  en:"What's perfect?",                                   zh:"什么完美？" },
+  { id:21, start:53.500,  end:54.000,  en:"What?",                                             zh:"什么呀？" },
+  { id:22, start:55.000,  end:57.000,  en:"Just wait there, you'll see.",                      zh:"等着瞧就知道了。" },
+  { id:23, start:60.000,  end:62.000,  en:"Ooh, it's pink!",                                   zh:"哇，是粉色的！" },
+  { id:24, start:67.000,  end:69.800,  en:"Oh thank you Little Nut Brown Hare,",               zh:"谢谢你，小棕兔，" },
+  { id:25, start:69.800,  end:71.000,  en:"it's so pretty!",                                   zh:"太漂亮了！" },
+  { id:26, start:72.000,  end:73.000,  en:"It's a blossom!",                                   zh:"是一朵花！" },
+  { id:27, start:73.000,  end:77.000,  en:"I'm going to keep it forever and ever!",            zh:"我要永远永远珍藏它！" },
+  { id:28, start:78.000,  end:81.000,  en:"Oh look, here comes some more blossoms!",           zh:"快看，又来了更多花瓣！" },
+  { id:29, start:84.000,  end:86.000,  en:"Where are they coming from?",                       zh:"它们从哪里漂来的？" },
+  { id:30, start:86.000,  end:88.437,  en:"They must be falling off a blossom tree",           zh:"一定是从花树上落下来的，" },
+  { id:31, start:88.437,  end:89.374,  en:"into the stream",                                   zh:"落入小溪，" },
+  { id:32, start:89.374,  end:92.000,  en:"and the stream is floating them down here.",        zh:"被水流冲到这里来的。" },
+  { id:33, start:93.000,  end:97.000,  en:"Wow, a whole tree covered in those blossoms!",      zh:"哇，整棵树都开满了花！" },
+  { id:34, start:97.000,  end:100.000, en:"It must be a very pretty tree!",                    zh:"那一定是棵非常美丽的树！" },
+  { id:35, start:100.000, end:103.389, en:"I can remember seeing a beautiful blossom tree",    zh:"我还记得看过一棵美丽的花树，" },
+  { id:36, start:103.389, end:105.967, en:"when I was a Little Nut Brown Hare,",               zh:"那时我还是只小棕兔，" },
+  { id:37, start:105.967, end:107.000, en:"just like you.",                                    zh:"就像你一样。" },
+  { id:38, start:107.000, end:108.666, en:"It had more blossoms",                              zh:"它开的花" },
+  { id:39, start:108.666, end:111.000, en:"than you could ever imagine.",                      zh:"比你想象的还要多。" },
+  { id:40, start:111.000, end:113.245, en:"The tree is probably still there",                  zh:"那棵树大概还在那里，" },
+  { id:41, start:113.245, end:115.000, en:"at the top of a mountain.",                         zh:"在山顶上。" },
+  { id:42, start:115.000, end:116.509, en:"Oh, can you take us?",                              zh:"哦，你能带我们去吗？" },
+  { id:43, start:116.509, end:119.000, en:"Can you show us the blossom tree?",                 zh:"带我们去看花树好吗？" },
+  { id:44, start:119.000, end:123.000, en:"Oh well, it's a very long way.",                    zh:"唉，那可很远呢。" },
+  { id:45, start:123.000, end:124.000, en:"Please?",                                           zh:"求你了嘛？" },
+  { id:46, start:124.000, end:127.000, en:"Well, alright.",                                    zh:"好吧，那就去。" },
+  { id:47, start:127.000, end:128.000, en:"Hooray!",                                           zh:"太好了！" },
+  { id:48, start:128.000, end:130.758, en:"I'm going to make a necklace of blossoms",          zh:"我要用花瓣做一条项链，" },
+  { id:49, start:130.758, end:132.000, en:"and show everyone!",                                zh:"给大家看！" },
+  { id:50, start:132.000, end:135.000, en:"Stop when you get to the big boulder!",             zh:"到大石头那里就停下！" },
+  { id:51, start:135.000, end:139.000, en:"You can't miss it, it's huge!",                     zh:"你不会错过的，它可大了！" },
+  { id:52, start:140.000, end:143.000, en:"Do you think this could be the boulder?",           zh:"你觉得这会是那块大石头吗？" },
+  { id:53, start:143.000, end:144.222, en:"It must be.",                                       zh:"应该是。" },
+  { id:54, start:144.222, end:146.000, en:"It's pretty big.",                                  zh:"挺大的。" },
+  { id:55, start:146.000, end:149.096, en:"This can't be the right boulder.",                  zh:"这不是那块石头。" },
+  { id:56, start:149.096, end:152.000, en:"It's not as big as I remember.",                    zh:"没有我记忆中那么大。" },
+  { id:57, start:152.000, end:155.166, en:"It looks big to me.",                               zh:"在我看来很大啊。" },
+  { id:58, start:155.166, end:156.000, en:"Huge!",                                             zh:"巨大！" },
+  { id:59, start:156.000, end:157.111, en:"Oh, I see.",                                        zh:"哦，我明白了。" },
+  { id:60, start:157.111, end:158.222, en:"It must be",                                        zh:"一定是因为" },
+  { id:61, start:158.222, end:161.444, en:"because last time I was here,",                     zh:"上次我来这里时，" },
+  { id:62, start:161.444, end:163.000, en:"I was smaller.",                                    zh:"我比现在小。" },
+  { id:63, start:163.000, end:166.000, en:"So the boulder only seemed bigger.",                zh:"所以石头只是看起来更大而已。" },
+  { id:64, start:166.000, end:166.954, en:"So why have we",                                    zh:"那我们为什么" },
+  { id:65, start:166.954, end:169.000, en:"stopped at the boulder anyway?",                    zh:"要在石头这里停下来？" },
+  { id:66, start:169.000, end:170.276, en:"We have to turn here",                              zh:"我们要从这里转弯，" },
+  { id:67, start:170.276, end:172.000, en:"to get to the blossom tree.",                       zh:"才能到花树那里。" },
+  { id:68, start:172.000, end:174.000, en:"We're nearly there!",                               zh:"快到了！" },
+  { id:69, start:174.000, end:174.625, en:"Oh no!",                                            zh:"哦不！" },
+  { id:70, start:174.625, end:179.000, en:"Where the path becomes two, uphill is true.",        zh:"当小路分成两条，走上坡是对的。" },
+  { id:71, start:179.000, end:182.000, en:"How does that tell us where to go?",                zh:"那怎么告诉我们往哪里走呢？" },
+  { id:72, start:181.4, end:182.6, en:"It's a riddle.", zh:"这是一个谜语。" },
+  { id:73, start:182.6, end:184.6, en:"You'll have to work it out.", zh:"你们得自己想出来。" },
+  { id:74, start:184.6, end:187.0, en:"Oh, I'll work it out before you!", zh:"哦，我会比你先想出来的！" },
+  { id:75, start:187.0, end:189.0, en:"Not if I work it out first!", zh:"除非我先想出来！" },
+  { id:76, start:196.6, end:197.3, en:"Found it!", zh:"找到了！" },
+  { id:77, start:197.3, end:200.4, en:"Oh, well, the first part of the riddle anyway,", zh:"哦，谜语的第一部分，" },
+  { id:78, start:200.4, end:203.6, en:"see? Where the path becomes two.", zh:"你看——当小路分成两条，" },
+  { id:79, start:203.6, end:207.0, en:"Uphill is true. That path is downhill.", zh:"走上坡是对的。那条路是下坡。" },
+  { id:80, start:207.0, end:209.0, en:"So we should go uphill.", zh:"所以我们要走上坡。" },
+  { id:81, start:209.0, end:211.0, en:"That's right.", zh:"对了。" },
+  { id:82, start:211.0, end:215.0, en:"Uphill is the true way to the blossom tree.", zh:"走上坡才是通往花树的正确路。" },
+  { id:83, start:216.0, end:218.0, en:"Now for the next riddle:", zh:"现在来看下一个谜语：" },
+  { id:84, start:218.0, end:220.0, en:"All must obey,", zh:"众皆服从，" },
+  { id:85, start:220.0, end:223.0, en:"the rock that knows the way.", zh:"知路之石。" },
+  { id:86, start:224.0, end:227.0, en:"Rocks don't know anything!", zh:"石头什么都不知道！" },
+  { id:87, start:227.0, end:230.0, en:"Well, it must show the way, somehow.", zh:"可它一定以某种方式指引方向。" },
+  { id:88, start:230.0, end:234.0, en:"That's a clue! Let's go, Little Nut Brown Hare!", zh:"这是线索！走吧，小棕兔！" },
+  { id:89, start:239.0, end:244.0, en:"There are lots of stones and rocks,", zh:"这里有很多石头和岩石，" },
+  { id:90, start:244.0, end:248.6, en:"but none of them are telling me anything,", zh:"但没有一块告诉我什么，" },
+  { id:91, start:248.6, end:251.0, en:"except that my legs and feet are tired.", zh:"只觉得腿和脚都累了。" },
+  { id:92, start:251.0, end:254.8, en:"Not all the rocks are under your feet.", zh:"不是所有的岩石都在你脚下。" },
+  { id:93, start:254.8, end:257.3, en:"But rocks can't be up in the sky!", zh:"但岩石不可能在天上啊！" },
+  { id:94, start:258.3, end:261.5, en:"Look, a rock that's pointing!", zh:"看，一块指向某处的岩石！" },
+  { id:95, start:261.5, end:265.0, en:"It means a rock that's pointing.", zh:"谜语说的是一块指路的石头。" },
+  { id:96, start:265.0, end:266.8, en:"Oh yes!", zh:"哦，对！" },
+  { id:97, start:266.8, end:269.6, en:"Is it pointing the way to the blossom tree?", zh:"它是在指向花树的路吗？" },
+  { id:98, start:269.6, end:271.8, en:"All must obey!", zh:"众皆服从！" },
+  { id:99, start:271.8, end:275.0, en:"The rock that knows the way!", zh:"知路之石！" },
+  { id:100 start:275.0, end:278.4, en:"See? The rock does know something!", zh:"看！这块石头果然知道什么！" },
+  { id:101 start:278.4, end:279.8, en:"Come on then!", zh:"那就走吧！" },
+  { id:102 start:279.8, end:283.8, en:"There's only one clue left", zh:"只剩最后一条线索了，" },
+  { id:103 start:283.8, end:286.0, en:"to help us find the blossom tree.", zh:"来帮我们找到花树。" },
+  { id:104 start:286.0, end:292.0, en:"Across a tree that's very old,", zh:"跨过一棵古老的树，" },
+  { id:105 start:292.0, end:296.0, en:"then through bushes made of gold,", zh:"再穿过金色的灌木丛，" },
+  { id:106 start:296.0, end:299.0, en:"up a mountain you will see", zh:"登上山顶，你将看见" },
+  { id:107 start:299.0, end:302.0, en:"a very pretty blossom tree.", zh:"一棵非常美丽的花树。" },
+  { id:108 start:310.6, end:312.6, en:"Hooray!", zh:"太好了！" },
+  { id:109 start:321.0, end:322.4, en:"Oh, look!", zh:"哦，快看！" },
+  { id:110 start:322.4, end:325.6, en:"Across a tree that's very old.", zh:"跨过一棵古老的树。" },
+  { id:111 start:325.6, end:327.6, en:"That tree looks old!", zh:"那棵树看起来很古老！" },
+  { id:112 start:327.6, end:328.8, en:"Come on!", zh:"走吧！" },
+  { id:113 start:328.8, end:330.8, en:"We have to go across!", zh:"我们要从上面过去！" },
+  { id:114 start:338.2, end:340.8, en:"Those bushes are gold!", zh:"那些灌木是金色的！" },
+  { id:115 start:340.8, end:343.6, en:"So we go through them!", zh:"那我们就穿过去！" },
+  { id:116 start:348.1, end:350.5, en:"Are we close? We could be!", zh:"我们快到了吗？可能是！" },
+  { id:117 start:353.5, end:356.5, en:"Up a mountain you will see", zh:"登上山顶你将看见" },
+  { id:118 start:356.5, end:358.6, en:"a very pretty blossom tree!", zh:"一棵非常美丽的花树！" },
+  { id:119 start:370.0, end:372.8, en:"Oh, it's even bigger and more beautiful than I remembered!", zh:"哦，比我记忆中还要大，还要美！" },
+  { id:120 start:372.8, end:375.8, en:"Although it's more of a hill than a mountain.", zh:"虽然与其说是山，不如说是小丘。" },
+  { id:121 start:375.8, end:378.6, en:"It's raining blossoms. Oh, it's like rain!", zh:"花瓣像雨一样落下来。哦，真像下雨！" },
+  { id:122 start:378.6, end:383.0, en:"Well, at least not everything has changed.", zh:"嗯，至少不是什么都变了。" },
+  { id:123 start:383.0, end:387.4, en:"These blossoms still smell as sweet as ever.", zh:"这些花儿还是一如既往地芬芳。" },
+  { id:124 start:393.96  end:396.0, en:"It's beautiful.", zh:"真美啊。" },
+  { id:125 start:396.0, end:397.4, en:"Thank you.", zh:"谢谢你。" },
+  { id:126 start:397.4, end:399.0, en:"You're welcome.", zh:"不客气。" },
+  { id:127 start:399.0, end:401.4, en:"Oh, we'd better start for home.", zh:"哦，我们最好动身回家了。" },
+  { id:128 start:403.0, end:406.8, en:"My legs and feet are still tired from getting here.", zh:"我的腿和脚从来的路上就累了。" },
+  { id:129 start:406.8, end:408.4, en:"Mine too.", zh:"我也是。" },
+  { id:130 start:408.4, end:410.0, en:"I know it's a long way,", zh:"我知道路很远，" },
+  { id:131 start:410.0, end:412.8, en:"but we should try to get home before it gets dark.", zh:"但我们要努力在天黑前到家。" },
+  { id:132 start:413.8, end:416.4, en:"I wish there was a quicker way home.", zh:"要是有条回家的捷径就好了。" },
+  { id:133 start:422.4, end:426.0, en:"Do you remember the blossoms in the stream this morning?", zh:"你还记得今早溪里漂来的花瓣吗？" },
+  { id:134 start:426.0, end:428.0, en:"You mean like this one?", zh:"你说的是这样的花瓣吗？" },
+  { id:135 start:428.0, end:431.0, en:"Aha! They're the same!", zh:"啊哈！是一样的！" },
+  { id:136 start:431.0, end:434.0, en:"Same colour and everything.", zh:"颜色什么都一样。" },
+  { id:137 start:434.0, end:439.0, en:"Have you seen any other blossom trees with this colour anywhere else?", zh:"你在别处见过开这种颜色花的树吗？" },
+  { id:138 start:439.0, end:443.0, en:"No, not anywhere that I can think of.", zh:"没有，我想不出有哪里。" },
+  { id:139 start:443.0, end:445.8, en:"Oh, what? What is it?", zh:"哦，什么？是什么？" },
+  { id:140 start:445.8, end:451.2, en:"The blossoms we found near home this morning come from this tree!", zh:"今早在家附近找到的花瓣，就是从这棵树上来的！" },
+  { id:141 start:451.2, end:455.4, en:"The stream carries them all the way back there.", zh:"溪流把它们一路带回去。" },
+  { id:142 start:455.4, end:460.6, en:"If we follow the blossoms in the stream,", zh:"如果我们顺着溪里的花瓣走，" },
+  { id:143 start:460.6, end:464.2, en:"they'll take us home another way.", zh:"它们会带我们走另一条路回家。" },
+  { id:144 start:464.2, end:466.0, en:"Let's try!", zh:"我们试试！" },
+  { id:145 start:466.0, end:471.0, en:"And very soon, much sooner than anyone had expected,", zh:"很快，比任何人预期的都要快，" },
+  { id:146 start:471.0, end:476.5, en:"the floating blossoms brought Little Nut Brown Hare,", zh:"漂浮的花瓣带着小棕兔，" },
+  { id:147 start:476.5, end:481.0, en:"Big Nut Brown Hare, and Little Field Mouse,", zh:"大棕兔和小田鼠，" },
+  { id:148 start:481.0, end:485.0, en:"right back to where they'd started their long journey.", zh:"回到了他们开始这段旅程的地方。" },
+  { id:149 start:488.4, end:491.0, en:"Look, the blossoms from this morning! We're home!", zh:"看，今早的花瓣！我们到家了！" },
+  { id:150 start:491.0, end:493.8, en:"You're so clever, Little Nut Brown Hare!", zh:"你真聪明，小棕兔！" },
+  { id:151 start:494.8, end:496.0, en:"Not really.", zh:"也没有啦。" },
+  { id:152 start:496.0, end:499.8, en:"I'm going to show everyone my pretty blossom necklace!", zh:"我要把我漂亮的花瓣项链给大家看！" },
+  { id:153 start:501.4, end:502.9, en:"Goodbye, Little Field Mouse.", zh:"再见，小田鼠。" },
+  { id:154 start:502.9, end:504.3, en:"See you tomorrow.", zh:"明天见。" },
+  { id:155 start:505.1, end:508.8, en:"You were very clever, my Little Nut Brown Hare.", zh:"你真的很聪明，我的小棕兔。" },
+  { id:156 start:508.8, end:513.0, en:"Now we know two ways to the beautiful blossom tree.", zh:"现在我们知道两条去美丽花树的路了。" },
+  { id:157 start:513.0, end:515.4, en:"Which one did you like more?", zh:"你更喜欢哪条路？" },
+  { id:158 start:515.4, end:517.4, en:"Hmm, I don't know.", zh:"嗯，我不知道。" },
+  { id:159 start:517.4, end:519.4, en:"They were both special.", zh:"两条路都很特别。" },
+  { id:160 start:519.4, end:522.0, en:"The way there had lots of riddles", zh:"去的路上有很多谜语，" },
+  { id:161 start:522.0, end:525.0, en:"and the way home was short and sweet.", zh:"回家的路又近又美好。" },
+  { id:162 start:525.0, end:529.0, en:"And both ways looked different now that I've grown up.", zh:"两条路看起来都和我小时候不一样了。" },
+  { id:163 start:529.0, end:532.0, en:"I have a riddle for you this time.", zh:"这次轮到我给你出谜语了。" },
+  { id:164 start:532.0, end:534.0, en:"Oh yes, go on!", zh:"哦好，说来听听！" },
+  { id:165 start:534.0, end:538.0, en:"What is as big as a mountain?", zh:"什么东西和山一样大？" },
+  { id:166 start:538.0, end:541.0, en:"And as long as a stream.", zh:"和溪流一样长。" },
+  { id:167 start:541.0, end:544.0, en:"And as tall as a tree.", zh:"和树一样高。" },
+  { id:168 start:544.0, end:546.0, en:"I don't know.", zh:"我不知道。" },
+  { id:169 start:546.0, end:549.0, en:"It's how much I love you.", zh:"就是我对你的爱。" },
+  { id:170 start:549.0, end:554.0, en:"Oh, well, Guess How Much I Love You.", zh:"哦，猜猜我有多爱你。" },
+  { id:171 start:554.0, end:558.0, en:"How much? As much as our day was special,", zh:"有多少？就像今天这一天有多特别，" },
+  { id:172 start:558.0, end:561.0, en:"as the blossom tree was beautiful,", zh:"就像那棵花树有多美丽，" },
+  { id:173 start:561.0, end:568.8, en:"and as far as the journey took us, there and back again.", zh:"就像这段旅程带我们走了多远，去了又回来。" },
+];
 
+// State
+let currentIdx = -1;
+let loopActive = false;
+let showEn = true;
+let showZh = true;
+const speeds = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2.0];
+let speedIdx = 2;
 
+// Elements
+const video       = document.getElementById('video');
+const subDisplay  = document.getElementById('sub-display');
+const subList     = document.getElementById('sub-list');
+const btnPlay     = document.getElementById('btn-play');
+const iconPlay    = document.getElementById('icon-play');
+const iconPause   = document.getElementById('icon-pause');
+const btnLoop     = document.getElementById('btn-loop');
+const btnEn       = document.getElementById('btn-en');
+const btnZh       = document.getElementById('btn-zh');
+const btnSpeed    = document.getElementById('btn-speed');
+const progressWrap= document.getElementById('progress-wrap');
+const progressFill= document.getElementById('progress-fill');
+const timeLabel   = document.getElementById('time-label');
 
+// Build subtitle list
+subtitles.forEach((s, i) => {
+  const el = document.createElement('div');
+  el.className = 'sub-item';
+  el.dataset.idx = i;
+  el.innerHTML = `
+    <span class="sub-item-time">${fmt(s.start)}</span>
+    <span class="sub-item-en">${s.en}</span>
+    <span class="sub-item-zh">${s.zh}</span>
+  `;
+  el.addEventListener('click', () => {
+    video.currentTime = s.start;
+    if (video.paused) video.play();
+  });
+  subList.appendChild(el);
+});
+
+function fmt(sec) {
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60).toString().padStart(2, '0');
+  return `${m}:${s}`;
+}
+function fmtFull(sec) {
+  if (!isFinite(sec)) return '0:00';
+  return fmt(sec);
+}
+
+// Time update
+video.addEventListener('timeupdate', () => {
+  const t = video.currentTime;
+
+  // Progress bar
+  if (video.duration) {
+    progressFill.style.width = (t / video.duration * 100) + '%';
+    timeLabel.textContent = fmtFull(t) + ' / ' + fmtFull(video.duration);
+  }
+
+  // Find current subtitle
+  let found = -1;
+  for (let i = 0; i < subtitles.length; i++) {
+    if (t >= subtitles[i].start && t < subtitles[i].end) { found = i; break; }
+  }
+
+  // Loop mode
+  if (loopActive && currentIdx >= 0 && found !== currentIdx && t >= subtitles[currentIdx].end) {
+    video.currentTime = subtitles[currentIdx].start;
+    return;
+  }
+
+  if (found === currentIdx) return;
+  currentIdx = found;
+  updateSubtitleUI();
+});
+
+function updateSubtitleUI() {
+  // Update display panel
+  if (currentIdx < 0) {
+    subDisplay.innerHTML = '<span class="sub-empty">字幕将在此处显示</span>';
+  } else {
+    const s = subtitles[currentIdx];
+    let html = '';
+    if (showEn) html += `<div class="sub-en">${s.en}</div>`;
+    if (showZh) html += `<div class="sub-zh">${s.zh}</div>`;
+    subDisplay.innerHTML = html || '<span class="sub-empty">字幕已隐藏</span>';
+  }
+
+  // Update list
+  document.querySelectorAll('.sub-item').forEach((el, i) => {
+    el.classList.toggle('active', i === currentIdx);
+    const enEl = el.querySelector('.sub-item-en');
+    const zhEl = el.querySelector('.sub-item-zh');
+    if (enEl) enEl.style.display = showEn ? '' : 'none';
+    if (zhEl) zhEl.style.display = showZh ? '' : 'none';
+  });
+
+  // Auto-scroll list
+  if (currentIdx >= 0) {
+    const activeEl = subList.children[currentIdx];
+    if (activeEl) {
+      activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+  }
+}
+
+// Show/hide toggle buttons
+function updateVisibility() {
+  document.querySelectorAll('.sub-item-en').forEach(el => el.style.display = showEn ? '' : 'none');
+  document.querySelectorAll('.sub-item-zh').forEach(el => el.style.display = showZh ? '' : 'none');
+  updateSubtitleUI();
+}
+
+btnEn.addEventListener('click', () => {
+  showEn = !showEn;
+  btnEn.classList.toggle('active', !showEn);
+  updateVisibility();
+});
+btnZh.addEventListener('click', () => {
+  showZh = !showZh;
+  btnZh.classList.toggle('active', !showZh);
+  updateVisibility();
+});
+
+// Loop
+btnLoop.addEventListener('click', () => {
+  loopActive = !loopActive;
+  btnLoop.classList.toggle('active', loopActive);
+});
+
+// Play/pause
+btnPlay.addEventListener('click', () => {
+  if (video.paused) video.play(); else video.pause();
+});
+video.addEventListener('play', () => {
+  iconPlay.style.display = 'none';
+  iconPause.style.display = '';
+});
+video.addEventListener('pause', () => {
+  iconPlay.style.display = '';
+  iconPause.style.display = 'none';
+});
+
+// Speed
+btnSpeed.addEventListener('click', () => {
+  speedIdx = (speedIdx + 1) % speeds.length;
+  video.playbackRate = speeds[speedIdx];
+  btnSpeed.textContent = speeds[speedIdx] + '×';
+});
+
+// Progress seek
+progressWrap.addEventListener('click', e => {
+  if (!video.duration) return;
+  const rect = progressWrap.getBoundingClientRect();
+  const ratio = (e.clientX - rect.left) / rect.width;
+  video.currentTime = ratio * video.duration;
+});
+
+// ── Video source loading ──
+// Bug fix: filename must include the space: "彼得兔 树花.mp4"
+const ITEM_ID  = '20260901_20260901_0054';
+const FILENAME = '树花 彼得兔.mp4';
+const DIRECT   = 'https://archive.org/download/' + ITEM_ID + '/' + encodeURIComponent(FILENAME);
+
+// Set direct URL immediately so the video starts loading without waiting for metadata API
+video.src = DIRECT;
+
+// Also try the metadata API: if it succeeds it gives a CDN URL (faster, more mobile-friendly)
+fetch('https://archive.org/metadata/' + ITEM_ID)
+  .then(r => r.json())
+  .then(data => {
+    if (data.server && data.dir) {
+      const cdnUrl = 'https://' + data.server + data.dir + '/' + encodeURIComponent(FILENAME);
+      // Switch only if video hasn't started playing yet
+      if (video.paused && video.readyState < 3) {
+        video.src = cdnUrl;
+      }
+    }
+  })
+  .catch(() => { /* direct URL already set, nothing to do */ });
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.code === 'Space') { e.preventDefault(); if (video.paused) video.play(); else video.pause(); }
+  if (e.code === 'ArrowRight') { e.preventDefault(); video.currentTime += 5; }
+  if (e.code === 'ArrowLeft')  { e.preventDefault(); video.currentTime -= 5; }
+  if (e.code === 'KeyL') { btnLoop.click(); }
+  if (e.code === 'KeyR' && currentIdx >= 0) { video.currentTime = subtitles[currentIdx].start; }
+});
+</script>
+</body>
+</html>
